@@ -32,11 +32,6 @@ User.init(
       allowNull: false,
       defaultValue: Role.STUDENT,
     },
-    created_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
     password: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -50,6 +45,6 @@ User.init(
   {
     sequelize,
     tableName: "users",
-    timestamps: false,
+    timestamps: true,
   }
 );
