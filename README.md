@@ -153,3 +153,5 @@ Este proyecto está licenciado bajo los términos de la **Apache License 2.0**.
 
 Puedes consultar los términos completos en el archivo [LICENSE](./LICENSE) o en:  
 [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
+
+![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
