@@ -177,3 +177,5 @@ cython_debug/
 # NODEJS
 node_modules
 dist
+/src/sagemaker/Daisee
+/src/sagemaker/Labels/TrainLabels.csv
