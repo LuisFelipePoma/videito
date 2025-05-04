@@ -22,7 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 dbConnect();
 
 // Rutas API REST
-app.use("/api", apiRoutes);
+app.use("/api/v1", apiRoutes);
 // Este va al final
 app.use(errorHandler);
 

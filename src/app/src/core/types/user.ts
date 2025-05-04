@@ -1,8 +1,14 @@
 export type Role = "";
 export interface User {
-  first_name: string;
-  last_name: string;
+  id: number;
+  firstName: string;
+  lastName: string;
 
   role: "docent" | "student";
   email: string;
+}
+
+export interface UserResponse {
+  token: string;
+  user: User;
 }

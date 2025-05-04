@@ -2,16 +2,15 @@ import { useState, FormEvent } from "react";
 import { Button } from "@components/ui/Button";
 import { Input } from "@components/ui/Input";
 import { Mail, LogIn, Lock } from "lucide-react";
-import { useNavigate } from "react-router";
+import { useMutLogin } from "../services/useMutLogin";
 
 export const LoginLayout = () => {
-  const navigate = useNavigate();
+  const mutationLogin = useMutLogin();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ email?: string; password?: string }>(
     {}
   );
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validateForm = (): boolean => {
     const newErrors: { email?: string; password?: string } = {};
@@ -32,14 +31,8 @@ export const LoginLayout = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-
     if (!validateForm()) return;
-
-    setIsSubmitting(true);
-
-    // Aquí iría la llamada a la API de autenticación
-    setIsSubmitting(false);
-    navigate("/app/home");
+    mutationLogin.mutate({ email, password });
   };
 
   return (
@@ -108,9 +101,9 @@ export const LoginLayout = () => {
       <Button
         type="submit"
         className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-        disabled={isSubmitting}
+        disabled={mutationLogin.isPending}
       >
-        {isSubmitting ? (
+        {mutationLogin.isPending ? (
           <>
             <span className="animate-spin mr-2">⟳</span>
             Procesando...
