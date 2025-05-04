@@ -1,9 +1,11 @@
 import { Eye } from "lucide-react";
 import { TabToggle } from "@components/ui/TabToggle";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { RegisterLayout } from "./layouts/RegisterLayout";
 import { LoginLayout } from "./layouts/LoginLayout";
 import { LoginInfoLayout } from "./layouts/LoginInfoLayout";
+import { useUserStore } from "@core/context/userStore";
+import { useNavigate } from "react-router";
 
 const loginTabs = [
   { value: "login", label: "Iniciar Sesión" },
@@ -12,6 +14,14 @@ const loginTabs = [
 
 const Login = () => {
   const [activeTab, setActiveTab] = useState(loginTabs[0].value);
+  const isAuthenticated = useUserStore((s) => s.isAuthenticated);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/app/home");
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <div className="flex flex-col items-center justify-center h-screen w-full">

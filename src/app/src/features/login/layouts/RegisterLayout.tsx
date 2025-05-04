@@ -1,112 +1,97 @@
-import { useState, FormEvent } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "@components/ui/Button";
 import { Input } from "@components/ui/Input";
 import { User, Mail, School, UserPlus, Lock } from "lucide-react";
+import { UserRegisterRequest } from "../services/types";
+import { Role } from "../../../core/types/user";
+import { useMutRegister } from "../services/useMutRegister";
+
+// Define the validation schema with Zod
+const registerSchema = z.object({
+  firstName: z.string().min(1, "El nombre es obligatorio"),
+  lastName: z.string().min(1, "El apellido es obligatorio"),
+  email: z.string().email("Correo electrónico inválido"),
+  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+  role: z.nativeEnum(Role),
+}) satisfies z.ZodType<UserRegisterRequest>;
+
+// Infer the type from the schema
+type FormValues = z.infer<typeof registerSchema>;
 
 export const RegisterLayout = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    role: "",
+  const mutationRegister = useMutRegister();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<FormValues>({
+    resolver: zodResolver(registerSchema),
+    mode: "onBlur",
   });
-  const [errors, setErrors] = useState<{
-    name?: string;
-    email?: string;
-    password?: string;
-    role?: string;
-  }>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const validateForm = (): boolean => {
-    const newErrors: {
-      name?: string;
-      email?: string;
-      password?: string;
-      role?: string;
-    } = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = "El nombre es obligatorio";
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = "El correo electrónico es obligatorio";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Correo electrónico inválido";
-    }
-
-    if (!formData.password) {
-      newErrors.password = "La contraseña es obligatoria";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "La contraseña debe tener al menos 6 caracteres";
-    }
-
-    if (!formData.role) {
-      newErrors.role = "Selecciona un rol";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) return;
-
-    setIsSubmitting(true);
-
-    try {
-      // Aquí iría la llamada a la API de registro
-      console.log("Registrando usuario:", formData);
-      // await registerUser(formData);
-
-      // Redireccionar tras el registro exitoso
-    } catch (error) {
-      console.error("Error al registrar usuario:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
+  const onSubmit = async (data: FormValues) => {
+    mutationRegister.mutate(data);
+    reset();
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
       <div className="space-y-4">
         <div className="space-y-2">
-          <label htmlFor="name" className="text-sm font-medium text-lighttext">
-            Nombre completo
+          <label
+            htmlFor="firstName"
+            className="text-sm font-medium text-lighttext"
+          >
+            Nombre
           </label>
           <div className="relative">
             <User className="absolute left-3 top-3 h-4 w-4 text-lighttextsec" />
             <Input
-              id="name"
-              name="name"
-              type="text"
-              placeholder="Juan Pérez"
+              id="firstName"
+              placeholder="Juan"
               className={`bg-background pl-10 ${
-                errors.name ? "border-error" : ""
+                errors.firstName ? "border-error" : ""
               }`}
-              value={formData.name}
-              onChange={handleChange}
-              aria-invalid={!!errors.name}
-              aria-describedby={errors.name ? "name-error" : undefined}
-              required
+              {...register("firstName")}
+              aria-invalid={!!errors.firstName}
+              aria-describedby={
+                errors.firstName ? "firstName-error" : undefined
+              }
             />
           </div>
-          {errors.name && (
-            <p id="name-error" className="text-xs text-error mt-1">
-              {errors.name}
+          {errors.firstName && (
+            <p id="firstName-error" className="text-xs text-error mt-1">
+              {errors.firstName.message}
+            </p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <label
+            htmlFor="lastName"
+            className="text-sm font-medium text-lighttext"
+          >
+            Apellido
+          </label>
+          <div className="relative">
+            <User className="absolute left-3 top-3 h-4 w-4 text-lighttextsec" />
+            <Input
+              id="lastName"
+              placeholder="Pérez"
+              className={`bg-background pl-10 ${
+                errors.lastName ? "border-error" : ""
+              }`}
+              {...register("lastName")}
+              aria-invalid={!!errors.lastName}
+              aria-describedby={errors.lastName ? "lastName-error" : undefined}
+            />
+          </div>
+          {errors.lastName && (
+            <p id="lastName-error" className="text-xs text-error mt-1">
+              {errors.lastName.message}
             </p>
           )}
         </div>
@@ -119,22 +104,19 @@ export const RegisterLayout = () => {
             <Mail className="absolute left-3 top-3 h-4 w-4 text-lighttextsec" />
             <Input
               id="email"
-              name="email"
               type="email"
               placeholder="tu@email.com"
               className={`bg-background pl-10 ${
                 errors.email ? "border-error" : ""
               }`}
-              value={formData.email}
-              onChange={handleChange}
+              {...register("email")}
               aria-invalid={!!errors.email}
               aria-describedby={errors.email ? "email-error" : undefined}
-              required
             />
           </div>
           {errors.email && (
             <p id="email-error" className="text-xs text-error mt-1">
-              {errors.email}
+              {errors.email.message}
             </p>
           )}
         </div>
@@ -150,22 +132,19 @@ export const RegisterLayout = () => {
             <Lock className="absolute left-3 top-3 h-4 w-4 text-lighttextsec" />
             <Input
               id="password"
-              name="password"
               type="password"
               placeholder="••••••••"
               className={`bg-background pl-10 ${
                 errors.password ? "border-error" : ""
               }`}
-              value={formData.password}
-              onChange={handleChange}
+              {...register("password")}
               aria-invalid={!!errors.password}
               aria-describedby={errors.password ? "password-error" : undefined}
-              required
             />
           </div>
           {errors.password && (
             <p id="password-error" className="text-xs text-error mt-1">
-              {errors.password}
+              {errors.password.message}
             </p>
           )}
         </div>
@@ -178,26 +157,23 @@ export const RegisterLayout = () => {
             <School className="absolute left-3 top-3 h-4 w-4 text-lighttextsec" />
             <select
               id="role"
-              name="role"
               className={`w-full rounded-md border p-2 pl-10 h-10 bg-background ${
                 errors.role ? "border-error" : ""
               }`}
-              value={formData.role}
-              onChange={handleChange}
+              {...register("role")}
               aria-invalid={!!errors.role}
               aria-describedby={errors.role ? "role-error" : undefined}
-              required
             >
               <option value="" disabled>
                 Selecciona tu rol
               </option>
               <option value="student">Estudiante</option>
-              <option value="teacher">Profesor</option>
+              <option value="docent">Profesor</option>
             </select>
           </div>
           {errors.role && (
             <p id="role-error" className="text-xs text-error mt-1">
-              {errors.role}
+              {errors.role.message}
             </p>
           )}
         </div>
@@ -206,9 +182,9 @@ export const RegisterLayout = () => {
       <Button
         type="submit"
         className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-        disabled={isSubmitting}
+        disabled={mutationRegister.isPending}
       >
-        {isSubmitting ? (
+        {mutationRegister.isPending ? (
           <>
             <span className="animate-spin mr-2">⟳</span>
             Procesando...

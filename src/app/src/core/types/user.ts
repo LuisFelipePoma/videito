@@ -1,10 +1,13 @@
-export type Role = "";
+export enum Role {
+  DOCENT = "docent",
+  STUDENT = "student",
+}
 export interface User {
   id: number;
   firstName: string;
   lastName: string;
 
-  role: "docent" | "student";
+  role: Role;
   email: string;
 }
 

@@ -1,8 +1,16 @@
 import { Button } from "@components/ui/Button";
+import { useUserStore } from "@core/context/userStore";
 import { Eye, LogOut } from "lucide-react";
-import { Outlet } from "react-router";
+import { Outlet, useNavigate } from "react-router";
 
 function BaseLayout() {
+  const forgetUserInfo = useUserStore((s) => s.forgetUserInfo);
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    forgetUserInfo();
+    navigate("/");
+  }
   return (
     <div className="w-screen h-screen flex flex-col">
       <header className="border-b border-lightborder bg-white px-6 py-4 shadow-sm">
@@ -22,7 +30,7 @@ function BaseLayout() {
                 Juan Sánchez
               </span>
             </div>
-            <Button size="sm" color="destructive">
+            <Button size="sm" color="destructive" onClick={handleLogout}>
               <LogOut className="h-5 w-5" />
             </Button>
           </div>

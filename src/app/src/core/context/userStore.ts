@@ -44,7 +44,6 @@ export const useUserStore = create<UserStoreSchema>((set) => ({
     set((state) => {
       localStorage.removeItem(localStorageKey);
       Cookies.remove("token");
-      Cookies.remove("refreshToken");
       return {
         ...state,
         auth: undefined,
