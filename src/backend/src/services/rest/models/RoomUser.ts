@@ -10,30 +10,30 @@ import {
   CreatedAt,
   UpdatedAt,
 } from "sequelize-typescript";
+import { Room } from "./Room";
 import { User } from "./User";
-import { Course } from "./Course";
 
 @Table({
-  tableName: "course_users",
+  tableName: "room_users",
   timestamps: true,
   underscored: true,
 })
-export class CourseUser extends Model<CourseUser> {
+export class RoomUser extends Model<RoomUser> {
   @PrimaryKey
   @AutoIncrement
   @Column(DataType.INTEGER)
   id!: number;
 
-  @ForeignKey(() => Course)
-  @Column({ field: "courses_id", type: DataType.INTEGER, allowNull: false })
-  courseId!: number;
+  @ForeignKey(() => Room)
+  @Column({ field: "classes_id", type: DataType.INTEGER, allowNull: false })
+  roomId!: number;
 
   @ForeignKey(() => User)
   @Column({ field: "users_id", type: DataType.INTEGER, allowNull: false })
   userId!: number;
 
-  @BelongsTo(() => Course)
-  course?: Course;
+  @BelongsTo(() => Room)
+  room?: Room;
 
   @BelongsTo(() => User)
   user?: User;

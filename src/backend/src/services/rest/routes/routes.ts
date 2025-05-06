@@ -1,6 +1,6 @@
 import { Router } from "express";
 import routerAuth from "./AuthRoutes";
-import routerUsers from "./UseRoutes";
+import routerUsers from "./UserRoutes";
 const router = Router();
 
 router.use("/users", routerUsers); // Gestión de usuarios (CRUD)

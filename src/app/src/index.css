@@ -8,6 +8,16 @@
 	border-color: var(--color-border);
 }
 
+/* Para mejorar la visualización de los videos */
+video {
+	object-fit: cover;
+	width: 100%;
+	height: 100%;
+}
+
+.mirror {
+	transform: scaleX(-1);
+}
 
 html,
 body {

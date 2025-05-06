@@ -2,7 +2,8 @@ import Login from "@features/login/LoginPage";
 import { createBrowserRouter, Navigate } from "react-router";
 import ProtectedRoute from "./ProtectedRoute";
 import Home from "@features/home/Home";
-import { Room } from "@features/videconference/Room";
+import Room from "@features/videconference/Room";
+import { SocketProvider } from "@features/videconference/context/SocketProvider";
 
 export const Routes = createBrowserRouter([
   {

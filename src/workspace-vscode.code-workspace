@@ -2,6 +2,12 @@
 	"folders": [
 		{
 			"path": "sagemaker"
+		},
+		{
+			"path": "backend"
+		},
+		{
+			"path": "app"
 		}
 	],
 	"settings": {}

@@ -1,12 +1,9 @@
-import { VideoRoom } from "@components/VideoRoom";
 import { useParams } from "react-router";
 
-export const Room = () => {
+const Room = () => {
   const { id } = useParams();
-  console.log(id);
-  return (
-    <div className="h-full w-full">
-      <VideoRoom roomId={String(id)} />
-    </div>
-  );
+
+  return <div className="room-page">pepe {id}</div>;
 };
+
+export default Room;
