@@ -98,7 +98,7 @@ export async function setupSocketServer(io: Server) {
       });
     });
 
-    socket.on("disconnect", () => {
+    socket.on("", (reason) => {
       const room = getRoom(currentRoomId);
       if (!room) return;
       console.log(`[${socket.id}] disconnected, cleaning up resources`);
@@ -108,6 +108,10 @@ export async function setupSocketServer(io: Server) {
       room.transports.delete(socket.id);
       room.producers.delete(socket.id);
       room.consumers.delete(socket.id);
+      console.log(`Socket desconectado: ${socket.id} - Motivo: ${reason}`);
+    });
+    socket.onAny((event, ...args) => {
+      console.log(`Evento recibido: ${event}`, args);
     });
   });
 }

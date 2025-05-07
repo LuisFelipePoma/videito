@@ -8,6 +8,7 @@ import apiRoutes from "./services/rest/routes/routes";
 import { errorHandler } from "./middlewares/errorMiddleware";
 import { Server as SocketIOServer } from "socket.io";
 import { setupSocketServer } from "./services/rooms/socket";
+import morgan from "morgan";
 
 dotenv.config();
 const app = express();
@@ -24,6 +25,8 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+// Logger de peticiones
+app.use(morgan("dev"));
 
 // Conexión DB y rutas REST
 dbConnect();
