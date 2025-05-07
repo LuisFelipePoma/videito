@@ -2,8 +2,8 @@ import Login from "@features/login/LoginPage";
 import { createBrowserRouter, Navigate } from "react-router";
 import ProtectedRoute from "./ProtectedRoute";
 import Home from "@features/home/Home";
-import Room from "@features/videconference/Room";
-import { SocketProvider } from "@features/videconference/context/SocketProvider";
+import { Room } from "@features/videconference/Room";
+import { SocketProvider } from "@features/videconference/context/SocketContext";
 
 export const Routes = createBrowserRouter([
   {
@@ -26,7 +26,11 @@ export const Routes = createBrowserRouter([
       },
       {
         path: "room/:id",
-        element: <Room />,
+        element: (
+          <SocketProvider url="http://localhost:3000">
+            <Room />
+          </SocketProvider>
+        ),
       },
     ],
   },

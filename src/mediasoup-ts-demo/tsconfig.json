@@ -1,0 +1,5 @@
+   mkdir mediasoup-video-chat
+   cd mediasoup-video-chat
+   npm init -y
+   npm install express socket.io mediasoup typescript ts-node @types/node @types/express @types/socket.io --save
+   npx tsc --init

@@ -1,4 +1,3 @@
-// index.ts (tu archivo principal)
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -7,14 +6,18 @@ import { createServer } from "http";
 import { dbConnect } from "./config/db";
 import apiRoutes from "./services/rest/routes/routes";
 import { errorHandler } from "./middlewares/errorMiddleware";
-
-import { initMediaSoup } from "./services/rooms/mediasoup";
-import { initSocket } from "./services/rooms/socket";
-import { Server as IOServer } from "socket.io";
+import { Server as SocketIOServer } from "socket.io";
+import { setupSocketServer } from "./services/rooms/socket";
 
 dotenv.config();
 const app = express();
 const httpServer = createServer(app);
+const io = new SocketIOServer(httpServer, {
+  cors: {
+    origin: "*", // Ajusta para mayor seguridad
+    methods: ["GET", "POST"],
+  },
+});
 
 // Middlewares
 app.use(helmet());
@@ -28,20 +31,10 @@ app.use("/api/v1", apiRoutes);
 app.use(errorHandler);
 
 // Arrancamos MediaSoup y Socket.IO
-(async () => {
-  await initMediaSoup(); // crea workers
-  const io = new IOServer(httpServer, {
-    cors: { origin: "*", methods: ["GET", "POST"] },
-  });
-  initSocket(io);
-})();
+setupSocketServer(io);
 
+// CREATE LISTENERS
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-});
-
-process.on("uncaughtException", (error) => {
-  console.error("Uncaught Exception:", error);
-  process.exit(1);
 });

@@ -1,41 +1,35 @@
-// services/rooms/socket.ts
-import { Server as IOServer, Socket } from "socket.io";
-import { getOrCreateRouter } from "./mediasoup";
-import { WebRtcTransport, Producer } from "mediasoup/node/lib/types";
+import { Server, Socket } from "socket.io";
+import {
+  initMediasoup,
+  createRoom,
+  getRoom,
+  createWebRtcTransport,
+} from "./mediasoup";
 
-interface RoomState {
-  producers: Map<string, Producer>; // producerId → Producer
-}
-const rooms: Map<string, RoomState> = new Map();
-
-export function initSocket(io: IOServer) {
+export async function setupSocketServer(io: Server) {
+  await initMediasoup();
+  console.log("Mediasoup worker initialized");
   io.on("connection", (socket: Socket) => {
-    console.log(`📶 Socket connected: ${socket.id}`);
+    let currentRoomId: string;
+    console.log(`Socket connected: ${socket.id}`);
 
-    socket.on("joinRoom", async ({ roomId }: { roomId: string }) => {
+    socket.on("joinRoom", async ({ roomId }) => {
+      currentRoomId = roomId;
+      console.log(`[${socket.id}] joinRoom: ${roomId}`);
+      await createRoom(roomId);
       socket.join(roomId);
-      if (!rooms.has(roomId)) {
-        rooms.set(roomId, { producers: new Map() });
-      }
-      const state = rooms.get(roomId)!;
-
-      // Devuelve lista de producers existentes para que el cliente cree consumidores
-      socket.emit("existingProducers", Array.from(state.producers.keys()));
+      socket.emit("joinedRoom", { roomId });
     });
 
-    // Cliente solicita crear un transport para enviar (produce)
-    socket.on("createProducerTransport", async ({ roomId }, callback) => {
-      const router = await getOrCreateRouter(roomId);
-      const transport = (await router.createWebRtcTransport({
-        listenIps: [{ ip: "0.0.0.0", announcedIp: process.env.ANNOUNCED_IP }],
-        enableUdp: true,
-        enableTcp: true,
-        preferUdp: true,
-      })) as WebRtcTransport;
-
-      // Guardamos el transport en el socket para usarlo luego
-      (socket.data as any).producerTransport = transport;
-
+    socket.on("createTransport", async (_, callback) => {
+      const room = getRoom(currentRoomId);
+      if (!room) {
+        console.warn(`[${socket.id}] Tried to createTransport without room`);
+        return;
+      }
+      const transport = await createWebRtcTransport(room);
+      room.transports.set(socket.id, transport);
+      console.log(`[${socket.id}] createTransport: ${transport.id}`);
       callback({
         id: transport.id,
         iceParameters: transport.iceParameters,
@@ -44,67 +38,47 @@ export function initSocket(io: IOServer) {
       });
     });
 
-    socket.on(
-      "connectProducerTransport",
-      async ({ dtlsParameters }, callback) => {
-        const transport = (socket.data as any)
-          .producerTransport as WebRtcTransport;
-        await transport.connect({ dtlsParameters });
-        callback({ connected: true });
+    socket.on("connectTransport", async ({ dtlsParameters }, callback) => {
+      const room = getRoom(currentRoomId);
+      const transport = room?.transports.get(socket.id);
+      if (!transport) {
+        console.warn(
+          `[${socket.id}] Tried to connectTransport without transport`
+        );
+        return;
       }
-    );
+      await transport.connect({ dtlsParameters });
+      console.log(`[${socket.id}] connectTransport`);
+      callback();
+    });
 
-    socket.on("produce", async ({ kind, rtpParameters, roomId }, callback) => {
-      const transport = (socket.data as any)
-        .producerTransport as WebRtcTransport;
+    socket.on("produce", async ({ kind, rtpParameters }, callback) => {
+      const room = getRoom(currentRoomId);
+      const transport = room?.transports.get(socket.id);
+      if (!transport) {
+        console.warn(`[${socket.id}] Tried to produce without transport`);
+        return;
+      }
       const producer = await transport.produce({ kind, rtpParameters });
-      const state = rooms.get(roomId)!;
-      state.producers.set(producer.id, producer);
-
-      // Notificar a otros peers que hay un nuevo producer
-      socket.to(roomId).emit("newProducer", { producerId: producer.id });
+      if (!room) return;
+      room.producers.set(socket.id, producer);
+      console.log(`[${socket.id}] produce: ${producer.id} (${kind})`);
       callback({ id: producer.id });
+      socket.to(currentRoomId).emit("newProducer", { producerId: producer.id });
     });
 
-    // Cliente solicita consumir un producer
-    socket.on("createConsumerTransport", async ({ roomId }, callback) => {
-      const router = await getOrCreateRouter(roomId);
-      const transport = (await router.createWebRtcTransport({
-        listenIps: [{ ip: "0.0.0.0", announcedIp: process.env.ANNOUNCED_IP }],
-        enableUdp: true,
-        enableTcp: true,
-        preferUdp: true,
-      })) as WebRtcTransport;
-
-      (socket.data as any).consumerTransport = transport;
-      callback({
-        id: transport.id,
-        iceParameters: transport.iceParameters,
-        iceCandidates: transport.iceCandidates,
-        dtlsParameters: transport.dtlsParameters,
-      });
-    });
-
-    socket.on(
-      "connectConsumerTransport",
-      async ({ dtlsParameters }, callback) => {
-        const transport = (socket.data as any)
-          .consumerTransport as WebRtcTransport;
-        await transport.connect({ dtlsParameters });
-        callback({ connected: true });
+    socket.on("consume", async ({ producerId, rtpCapabilities }, callback) => {
+      const room = getRoom(currentRoomId);
+      const transport = room?.transports.get(socket.id);
+      const producer = room?.producers.get(producerId);
+      if (!room || !transport || !producer) {
+        console.warn(
+          `[${socket.id}] Tried to consume without valid room/transport/producer`
+        );
+        return;
       }
-    );
-
-    socket.on("consume", async ({ producerId, roomId }, callback) => {
-      const router = await getOrCreateRouter(roomId);
-      const state = rooms.get(roomId)!;
-      const producer = state.producers.get(producerId)!;
-
-      const transport = (socket.data as any)
-        .consumerTransport as WebRtcTransport;
-      const { rtpCapabilities } = socket.handshake.query as any;
-      // Verificar si el router puede consumir ese producer
-      if (!router.canConsume({ producerId, rtpCapabilities })) {
+      if (!room.router.canConsume({ producerId, rtpCapabilities })) {
+        console.warn(`[${socket.id}] Cannot consume producer ${producerId}`);
         return callback({ error: "Cannot consume" });
       }
       const consumer = await transport.consume({
@@ -112,7 +86,10 @@ export function initSocket(io: IOServer) {
         rtpCapabilities,
         paused: false,
       });
-
+      room.consumers.set(socket.id, consumer);
+      console.log(
+        `[${socket.id}] consume: ${consumer.id} (from producer ${producerId})`
+      );
       callback({
         id: consumer.id,
         producerId,
@@ -122,8 +99,15 @@ export function initSocket(io: IOServer) {
     });
 
     socket.on("disconnect", () => {
-      console.log(`❌ Socket disconnected: ${socket.id}`);
-      // Aquí podrías limpiar producers o transports asociados
+      const room = getRoom(currentRoomId);
+      if (!room) return;
+      console.log(`[${socket.id}] disconnected, cleaning up resources`);
+      room.transports.get(socket.id)?.close();
+      room.producers.get(socket.id)?.close();
+      room.consumers.get(socket.id)?.close();
+      room.transports.delete(socket.id);
+      room.producers.delete(socket.id);
+      room.consumers.delete(socket.id);
     });
   });
 }

@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "app"
+		},
+		{
+			"path": "../../test/video/mediasoup-demo"
 		}
 	],
 	"settings": {}
