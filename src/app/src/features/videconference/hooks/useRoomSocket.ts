@@ -1,21 +1,39 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { TransportOptions } from "mediasoup-client/types";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import {
+  DtlsParameters,
+  RtpCapabilities,
+  TransportOptions,
+} from "mediasoup-client/types";
 import { useEffect, useRef } from "react";
 import { Socket } from "socket.io-client";
+import { useRoomStore } from "../store/useRoomStore";
+import { useShallow } from "zustand/react/shallow";
 
 export function useRoomSocket(socket: Socket | null, roomId: string) {
+  const { setRtpCapabilities } = useRoomStore(
+    useShallow((s) => ({
+      setRtpCapabilities: s.setRtpCapabilities,
+    }))
+  );
   // Referencia para exponer funciones
   const apiRef = useRef({
     createTransport: async (): Promise<TransportOptions | any> => {},
-    connectTransport: async (_dtlsParameters: any): Promise<void> => {},
+    connectTransport: async (
+      _dtlsParameters: DtlsParameters
+    ): Promise<void> => {},
   });
 
   useEffect(() => {
     if (!socket || !roomId) return;
 
     socket.emit("joinRoom", { roomId });
-    const onJoinedRoom = ({ roomId }: { roomId: string }) => {
-      console.log(`[frontend] Joined room: ${roomId}`);
+    const onJoinedRoom = ({
+      rtpCapabilities,
+    }: {
+      rtpCapabilities: RtpCapabilities;
+    }) => {
+      console.log({ rtpCapabilities });
+      setRtpCapabilities(rtpCapabilities);
     };
     socket.on("joinedRoom", onJoinedRoom);
 
