@@ -11,7 +11,7 @@ const {
   DB_PORT = 5432,
   DB_NAME = "videito",
   DB_USER = "postgres",
-  DB_PASSWORD = "",
+  DB_PASSWORD = "123",
 
   // JWT
   JWT_SECRET = "changeme",

@@ -1,0 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+@import "tailwindcss";
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+	border-color: var(--color-border);
+}
+
+/* Para mejorar la visualización de los videos */
+video {
+	object-fit: cover;
+	width: 100%;
+	height: 100%;
+}
+
+.mirror {
+	transform: scaleX(-1);
+}
+
+html,
+body {
+	font-family: "Rubik", system-ui, Avenir, Helvetica, Arial, sans-serif;
+	line-height: 1.5;
+	font-weight: 400;
+	height: 100vh;
+	background: var(--color-background);
+	font-synthesis: none;
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+@theme {
+	--color-background: #ffffff !important;
+	--color-foreground: #0a0a0a !important;
+	--color-card: #ffffff !important;
+	--color-card-foreground: #0a0a0a !important;
+	--color-popover: #ffffff !important;
+	--color-popover-foreground: #0a0a0a !important;
+	--color-primary: #2463EB !important;
+	--color-primary-foreground: #F0F6FF !important;
+	--color-secondary: #60A5FA !important;
+	--color-secondary-foreground: #171717 !important;
+	--color-muted: #f5f5f5 !important;
+	--color-muted-foreground: #737373 !important;
+	--color-accent: #f5f5f5 !important;
+	--color-accent-foreground: #171717 !important;
+	--color-destructive: #eb3333 !important;
+	--color-destructive-foreground: #fafafa !important;
+	--color-border: #e5e5e5 !important;
+	--color-input: #e5e5e5 !important;
+	--color-ring: #0a0a0a !important;
+	--color-chart-1: #d56a4c !important;
+	--color-chart-2: #299c8b !important;
+	--color-chart-3: #274d63 !important;
+	--color-chart-4: #dcbc49 !important;
+	--color-chart-5: #ec9c3e !important;
+	--color-radius: 0.5rem !important;
+	--color-sidebar-background: #fafafa !important;
+	--color-sidebar-foreground: #3f4046 !important;
+	--color-sidebar-primary: #18181c !important;
+	--color-sidebar-primary-foreground: #fafafa !important;
+	--color-sidebar-accent: #f3f3f6 !important;
+	--color-sidebar-accent-foreground: #18181c !important;
+	--color-sidebar-border: #e4e8ef !important;
+	--color-sidebar-ring: #3b82f6 !important;
+
+	/* Custom colors */
+	--color-lightbg: #f0f5fa !important;
+	--color-lightcard: #ffffff !important;
+	--color-lighthover: #f4f6f9 !important;
+	--color-lightborder: #e4e8ef !important;
+	--color-lighttext: #34465a !important;
+	--color-lighttextsec: #6c7689 !important;
+	--color-success: #0cb663 !important;
+	--color-warning: #ffb800 !important;
+	--color-error: #ff3333 !important;
+}
+
+button {
+	cursor: pointer;
+
+	&:disabled {
+		cursor: not-allowed;
+	}
+}

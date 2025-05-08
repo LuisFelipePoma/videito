@@ -4,42 +4,40 @@ import cors from "cors";
 import helmet from "helmet";
 import { createServer } from "http";
 import { dbConnect } from "./config/db";
-import { initializeMediaSoup } from "./services/sfu/sfu";
 import apiRoutes from "./services/rest/routes/routes";
 import { errorHandler } from "./middlewares/errorMiddleware";
+import { Server as SocketIOServer } from "socket.io";
+import { setupSocketServer } from "./services/rooms/socket";
+import morgan from "morgan";
 
 dotenv.config();
 const app = express();
 const httpServer = createServer(app);
+const io = new SocketIOServer(httpServer, {
+  cors: {
+    origin: "*", // Ajusta para mayor seguridad
+    methods: ["GET", "POST"],
+  },
+});
 
 // Middlewares
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+// Logger de peticiones
+app.use(morgan("dev"));
 
-// Conexión a la base de datos
+// Conexión DB y rutas REST
 dbConnect();
-
-// Rutas API REST
-app.use("/api", apiRoutes);
-// Este va al final
+app.use("/api/v1", apiRoutes);
 app.use(errorHandler);
 
-// Inicialización de servicios
-// initializeSockets(httpServer);
-initializeMediaSoup(httpServer);
+// Arrancamos MediaSoup y Socket.IO
+setupSocketServer(io);
 
+// CREATE LISTENERS
 const PORT = process.env.PORT || 3000;
-
 httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
-// Manejo de errores no capturados
-process.on("uncaughtException", (error) => {
-  console.error("Uncaught Exception:", error);
-  process.exit(1);
-});
-
-export default app;

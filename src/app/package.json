@@ -1,0 +1,49 @@
+{
+	"name": "focu-track-app",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite --host",
+		"build": "tsc -b && vite build",
+		"lint": "eslint .",
+		"preview": "vite preview"
+	},
+	"dependencies": {
+		"@hookform/resolvers": "^5.0.1",
+		"@tailwindcss/vite": "^4.1.4",
+		"@tanstack/react-query": "^5.74.4",
+		"axios": "^1.9.0",
+		"focu-track-app": "file:",
+		"immer": "^10.1.1",
+		"js-cookie": "^3.0.5",
+		"lucide-react": "^0.507.0",
+		"mediasoup-client": "^3.10.1",
+		"peerjs": "^1.5.4",
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0",
+		"react-hook-form": "^7.56.2",
+		"react-hot-toast": "^2.5.2",
+		"react-router": "^7.5.1",
+		"socket.io-client": "^4.8.1",
+		"tailwindcss": "^4.1.4",
+		"video-client": "file:",
+		"zod": "^3.24.3",
+		"zustand": "^5.0.4"
+	},
+	"devDependencies": {
+		"@eslint/js": "^9.22.0",
+		"@types/js-cookie": "^3.0.6",
+		"@types/node": "^22.13.0",
+		"@types/react": "^19.0.10",
+		"@types/react-dom": "^19.0.4",
+		"@vitejs/plugin-react-swc": "^3.8.0",
+		"eslint": "^9.22.0",
+		"eslint-plugin-react-hooks": "^5.2.0",
+		"eslint-plugin-react-refresh": "^0.4.19",
+		"globals": "^16.0.0",
+		"typescript": "~5.7.2",
+		"typescript-eslint": "^8.26.1",
+		"vite": "^6.3.1"
+	}
+}
