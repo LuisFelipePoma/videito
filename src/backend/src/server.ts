@@ -2,7 +2,8 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import helmet from "helmet";
-import { createServer } from "http";
+import fs from "fs";
+import { createServer } from "https";
 import { dbConnect } from "./config/db";
 import apiRoutes from "./services/rest/routes/routes";
 import { errorHandler } from "./middlewares/errorMiddleware";
@@ -10,9 +11,14 @@ import { Server as SocketIOServer } from "socket.io";
 import { setupSocketServer } from "./services/rooms/socket";
 import morgan from "morgan";
 
+const options = {
+  key: fs.readFileSync("./src/ssl/key.pem", "utf-8"),
+  cert: fs.readFileSync("./src/ssl/cert.pem", "utf-8"),
+};
+
 dotenv.config();
 const app = express();
-const httpServer = createServer(app);
+const httpServer = createServer(options, app);
 const io = new SocketIOServer(httpServer, {
   cors: {
     origin: "*", // Ajusta para mayor seguridad

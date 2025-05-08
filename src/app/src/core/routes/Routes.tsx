@@ -27,7 +27,7 @@ export const Routes = createBrowserRouter([
       {
         path: "room/:id",
         element: (
-          <SocketProvider url="http://localhost:3000">
+          <SocketProvider url="https://localhost:3000">
             <Room />
           </SocketProvider>
         ),

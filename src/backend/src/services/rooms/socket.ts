@@ -19,22 +19,36 @@ export async function setupSocketServer(io: Server) {
       console.log(`[${socket.id}] joinRoom: ${roomId}`);
 
       currentRoomId = roomId;
-      const room = await createRoom(roomId);
+      const room = await createRoom(roomId, socket.id);
       if (!room) return;
       socket.join(roomId);
       socket.emit("joinedRoom", {
         rtpCapabilities: room.router.rtpCapabilities,
+        producerList: Array.from(room.peers.values()).flatMap((peer) =>
+          Array.from(peer.producers.keys())
+        ),
       });
     });
 
-    socket.on("createTransport", async ({ _ }, callback) => {
+    socket.on("leaveRoom", () => {
+      const room = getRoom(currentRoomId);
+      const peer = room?.peers.get(socket.id);
+      if (!room || !peer) return;
+      peer.transports.forEach((t) => t.close());
+      peer.producers.forEach((p) => p.close());
+      peer.consumers.forEach((c) => c.close());
+      room.peers.delete(socket.id);
+      socket.leave(currentRoomId);
+      socket.emit("leftRoom");
+    });
+
+    socket.on("createTransport", async ({ isConsumer }, callback) => {
       const room = getRoom(currentRoomId);
       if (!room) {
         console.warn(`[${socket.id}] Tried to createTransport without room`);
         return;
       }
 
-      // Obtén o crea el Peer para este socket
       let peer = room.peers.get(socket.id);
       if (!peer) {
         peer = {
@@ -46,11 +60,21 @@ export async function setupSocketServer(io: Server) {
         room.peers.set(socket.id, peer);
       }
 
-      // Crea el transport y guárdalo en el peer
       const transport = await createWebRtcTransport(room);
       peer.transports.set(transport.id, transport);
 
-      console.log(`[${socket.id}] createTransport: ${transport.id}`);
+      // Guarda el ID según el tipo de transporte
+      if (isConsumer) {
+        peer.recvTransportId = transport.id;
+      } else {
+        peer.sendTransportId = transport.id;
+      }
+
+      console.log(
+        `[${socket.id}] createTransport: ${transport.id} (${
+          isConsumer ? "recv" : "send"
+        })`
+      );
       callback({
         id: transport.id,
         iceParameters: transport.iceParameters,
@@ -145,6 +169,11 @@ export async function setupSocketServer(io: Server) {
       const peer = room?.peers.get(socket.id);
       if (!room || !peer) return;
       console.log(`[${socket.id}] disconnected, cleaning up resources`);
+      // ...en socket.on("disconnect") y leaveRoom...
+      peer.producers.forEach((p, producerId) => {
+        socket.to(currentRoomId).emit("producerClosed", { producerId });
+        p.close();
+      });
       peer.transports.forEach((t) => t.close());
       peer.producers.forEach((p) => p.close());
       peer.consumers.forEach((c) => c.close());

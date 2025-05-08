@@ -19,11 +19,8 @@ export const Room = () => {
   useEffect(() => {
     const setup = async () => {
       // 1. Crear transport en backend
-      if (!device) return;
-      const transportParams = await createTransport();
-      console.log("[frontend] Transport params:", transportParams);
-      // 2. Crear device de mediasoup-client si no existe
-      // (deberías obtener rtpCapabilities del backend y cargar aquí)
+      if (!device || !socket) return;
+      const transportParams = await createTransport(false);
 
       // 3. Crear producerTransport en el cliente
       const producerTransport = device.createSendTransport(transportParams);
@@ -33,7 +30,7 @@ export const Room = () => {
         "connect",
         async ({ dtlsParameters }, callback, errback) => {
           try {
-            await connectTransport(dtlsParameters);
+            await connectTransport(producerTransport.id, dtlsParameters);
             console.log("[frontend] Transport connected");
             callback();
           } catch (err: any) {
@@ -43,14 +40,34 @@ export const Room = () => {
         }
       );
 
-      // connectSendTransport();
-      // 5. (Opcional) produce audio/video aquí
-      // const stream = await navigator.mediaDevices.getUserMedia({
-      //   audio: true,
-      //   video: true,
-      // });
-      // const track = stream.getVideoTracks()[0];
-      // await sendTransport.produce({ track });
+      producerTransport.on(
+        "produce",
+        async ({ kind, rtpParameters, appData }, callback, errback) => {
+          try {
+            // Llama al backend para crear el producer
+            socket.emit(
+              "produceTransport",
+              { kind, rtpParameters, appData: producerTransport.id },
+              (response: any) => {
+                if (response && response.id) {
+                  callback({ id: response.id });
+                } else {
+                  errback(response?.error || "Produce error");
+                }
+              }
+            );
+          } catch (err) {
+            errback(err);
+          }
+        }
+      );
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: true,
+      });
+      const track = stream.getVideoTracks()[0]; // o audio
+      const producer = await producerTransport.produce({ track });
     };
 
     setup();
