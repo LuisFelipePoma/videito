@@ -182,3 +182,4 @@ dist
 /src/sagemaker/OpenFace_2.2.0_win_x64
 /src/sagemaker/features
 /src/sagemaker/save_model
+/src/sagemaker/OpenFace Embeddings/X_seq.npy
