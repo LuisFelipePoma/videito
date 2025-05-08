@@ -17,8 +17,9 @@ export function useRoomSocket(socket: Socket | null, roomId: string) {
   );
   // Referencia para exponer funciones
   const apiRef = useRef({
-    createTransport: async (): Promise<TransportOptions | any> => {},
+    createTransport: async (isConsumer): Promise<TransportOptions | any> => {},
     connectTransport: async (
+      transportId: string,
       _dtlsParameters: DtlsParameters
     ): Promise<void> => {},
   });
@@ -27,20 +28,25 @@ export function useRoomSocket(socket: Socket | null, roomId: string) {
     if (!socket || !roomId) return;
 
     socket.emit("joinRoom", { roomId });
+
     const onJoinedRoom = ({
       rtpCapabilities,
+      producerList,
     }: {
       rtpCapabilities: RtpCapabilities;
+      producerList: string[];
     }) => {
       console.log({ rtpCapabilities });
+      console.log({ producerList });
       setRtpCapabilities(rtpCapabilities);
     };
+
     socket.on("joinedRoom", onJoinedRoom);
 
     // Implementación de createTransport
-    apiRef.current.createTransport = async () => {
+    apiRef.current.createTransport = async (isConsumer) => {
       return new Promise((resolve, reject) => {
-        socket.emit("createTransport", {}, (params: any) => {
+        socket.emit("createTransport", { isConsumer }, (params: any) => {
           if (!params || !params.id) {
             console.warn("[frontend] createTransport error", params);
             reject(params);
@@ -53,17 +59,24 @@ export function useRoomSocket(socket: Socket | null, roomId: string) {
     };
 
     // Implementación de connectTransport
-    apiRef.current.connectTransport = async (dtlsParameters: any) => {
+    apiRef.current.connectTransport = async (
+      transportId,
+      dtlsParameters: any
+    ) => {
       return new Promise<void>((resolve, reject) => {
-        socket.emit("connectTransport", { dtlsParameters }, (response: any) => {
-          if (response && response.error) {
-            console.warn("[frontend] connectTransport error", response.error);
-            reject(response.error);
-          } else {
-            console.log("[frontend] connectTransport OK");
-            resolve();
+        socket.emit(
+          "connectTransport",
+          { transportId, dtlsParameters },
+          (response: any) => {
+            if (response && response.error) {
+              console.warn("[frontend] connectTransport error", response.error);
+              reject(response.error);
+            } else {
+              console.log("[frontend] connectTransport OK");
+              resolve();
+            }
           }
-        });
+        );
       });
     };
 

@@ -13,7 +13,9 @@ export type Peer = {
   consumers: Map<string, Consumer>;
   details: {
     role: string;
-  }; // Para roles, nombre, etc.
+  };
+  sendTransportId?: string; // ID del transporte para enviar
+  recvTransportId?: string; // ID del transporte para recibir
 };
 
 export type Room = {
