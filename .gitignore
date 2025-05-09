@@ -178,6 +178,8 @@ cython_debug/
 node_modules
 dist
 /src/sagemaker/Daisee
+/src/sagemaker/DAiSEE
+/src/sagemaker/DAiSEE.zip
 /src/sagemaker/Labels/TrainLabels.csv
 /src/sagemaker/OpenFace_2.2.0_win_x64
 /src/sagemaker/features
