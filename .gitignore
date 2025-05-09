@@ -183,3 +183,6 @@ dist
 /src/sagemaker/features
 /src/sagemaker/save_model
 /src/sagemaker/OpenFace Embeddings/X_seq.npy
+
+# ssl
+*.pem
