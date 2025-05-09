@@ -21,7 +21,7 @@ export async function setupSocketServer(io: Server) {
       currentRoomId = roomId;
       const room = await createRoom(roomId, socket.id);
       if (!room) return;
-      socket.join(roomId);
+      socket.join(roomId); // this join makes the socket join the room
       socket.emit("joinedRoom", {
         rtpCapabilities: room.router.rtpCapabilities,
         producerList: Array.from(room.peers.values()).flatMap((peer) =>

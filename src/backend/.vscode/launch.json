@@ -1,0 +1,22 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug TS Node Dev",
+            "runtimeExecutable": "npx",
+            "runtimeArgs": [
+                "ts-node-dev",
+                "--respawn",
+                "--transpile-only",
+                "src/server.ts"
+            ],
+            "envFile": "${workspaceFolder}/.env",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "console": "integratedTerminal"
+        }
+    ]
+}
