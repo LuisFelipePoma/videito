@@ -7,7 +7,7 @@ import { logout } from "../utils/logout";
 const baseURLAPI =
   EnvConfig.environment === "production"
     ? EnvConfig.apiUrl
-    : "http://localhost:3000/api/v1";
+    : "https://localhost:3000/api/v1";
 
 // Abstract HTTP client class
 abstract class HttpClient {
