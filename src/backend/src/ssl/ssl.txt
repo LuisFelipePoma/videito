@@ -1,0 +1,2 @@
+# generate-certs.sh
+openssl req -newkey rsa:2048 -nodes -keyout ssl/key.pem -x509 -days 365 -out ssl/cert.pem
