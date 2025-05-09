@@ -17,9 +17,11 @@ export function useRoomSocket(socket: Socket | null, roomId: string) {
   );
   // Referencia para exponer funciones
   const apiRef = useRef({
-    createTransport: async (isConsumer): Promise<TransportOptions | any> => {},
+    createTransport: async (
+      _isConsumer: boolean
+    ): Promise<TransportOptions> => {},
     connectTransport: async (
-      transportId: string,
+      _transportId: string,
       _dtlsParameters: DtlsParameters
     ): Promise<void> => {},
   });
@@ -59,10 +61,7 @@ export function useRoomSocket(socket: Socket | null, roomId: string) {
     };
 
     // Implementación de connectTransport
-    apiRef.current.connectTransport = async (
-      transportId,
-      dtlsParameters: any
-    ) => {
+    apiRef.current.connectTransport = async (transportId, dtlsParameters) => {
       return new Promise<void>((resolve, reject) => {
         socket.emit(
           "connectTransport",
