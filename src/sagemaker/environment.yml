@@ -1,6 +1,0 @@
-name: tf-gpu
-channels:
-  - defaults
-dependencies:
-  - tensorflow
-  - python=3.10

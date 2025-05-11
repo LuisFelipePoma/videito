@@ -32,15 +32,34 @@ Este repositorio contiene el código para el proceso completo del modelo, desde 
 
 
 ## Como Configurar el Entorno
-1. Crear 2 entornos virtuales, uno para el preprocesamiento y otro para el entrenamiento/despliegue.
+1. Crear entornos virtuales necesarios para etapa.
+
+	- Preprocesamiento
+	
+	Crear entorno desde cero
+	```bash
+	
+	conda create -n tf python=3.10 -c conda-forge
+	conda env export --from-history | grep -v '^prefix:' > tf.yml
+	```
+	Cargar entorno 
+	```bash
+	conda env create -f tf.yml
+	sudo apt-get install -y libgl1-mesa-glx libegl1
+	pip install "augly[video]"
+	pip install vidgear==0.1.9
+	pip install opencv-python
+	```
+	>Este creara un entorno con el nombre tf y la version de python 3.10 (Preprocesamiento).
+
+   - Entrenamiento
    
    	```bash
 	conda create -n tf-gpu python=3.10 tensorflow -c conda-forge
+	conda env export --from-history | grep -v '^prefix:' > tf-gpu.yml
 	```	
 	>Este creara un entorno con el nombre tf-gpu y la version de python 3.10 y tensorflow (Entrenamiento y Despliegue).
 	>Este entorno ira a la nube.
 
-	```bash
-	conda create -n tf python=3.10 -c conda-forge
-	```
-	>Este creara un entorno con el nombre tf y la version de python 3.10 (Preprocesamiento).
+
+	conda env export --from-history | grep -v '^prefix:' > tf-gpu.yml
