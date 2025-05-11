@@ -6,7 +6,14 @@ import { useMediasoupConnection } from "./hooks/useMediasoupConnection";
 export const Room = () => {
   const { id } = useParams();
   useMediasoupConnection();
-  const { stream, loading, error } = useLocalMedia();
+  const { stream, loading, error } = useLocalMedia({
+    video:{
+      facingMode: "user",
+      width: { ideal: 1280 },
+      height: { ideal: 720 },
+    },
+    audio: true,
+  });
 
   return (
     <div className="room-page">
