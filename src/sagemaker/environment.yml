@@ -1,10 +1,6 @@
-name: tf
+name: tf-gpu
 channels:
   - defaults
 dependencies:
+  - tensorflow
   - python=3.10
-  - ipykernel
-  - torchaudio
-  - python-magic
-  - x264
-  - ffmpeg

@@ -41,6 +41,6 @@ Este repositorio contiene el código para el proceso completo del modelo, desde 
 	>Este entorno ira a la nube.
 
 	```bash
-	conda create -n tf python=3.10
+	conda create -n tf python=3.10 -c conda-forge
 	```
 	>Este creara un entorno con el nombre tf y la version de python 3.10 (Preprocesamiento).
