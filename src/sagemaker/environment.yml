@@ -1,0 +1,10 @@
+name: tf
+channels:
+  - defaults
+dependencies:
+  - python=3.10
+  - ipykernel
+  - torchaudio
+  - python-magic
+  - x264
+  - ffmpeg
