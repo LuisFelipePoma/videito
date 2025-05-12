@@ -55,8 +55,15 @@ Este repositorio contiene el código para el proceso completo del modelo, desde 
    - Entrenamiento
    
    	```bash
-	conda create -n tf-gpu python=3.10 tensorflow -c conda-forge
+	conda create -n tf-gpu python=3.10 tensorflow opencv -c conda-forge
 	conda env export --from-history | grep -v '^prefix:' > tf-gpu.yml
+	```	
+   	```bash
+	wget https://developer.download.nvidia.com/compute/cuda/repos/debian11/x86_64/cuda-keyring_1.0-1_all.deb
+	sudo dpkg -i cuda-keyring_1.0-1_all.deb
+	sudo apt update
+	sudo apt install -y cuda-toolkit-12-1
+
 	```	
 	>Este creara un entorno con el nombre tf-gpu y la version de python 3.10 y tensorflow (Entrenamiento y Despliegue).
 	>Este entorno ira a la nube.
