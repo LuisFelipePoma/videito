@@ -46,6 +46,7 @@ Este repositorio contiene el código para el proceso completo del modelo, desde 
 	```bash
 	conda env create -f tf.yml
 	sudo apt-get install -y libgl1-mesa-glx libegl1
+	sudo apt install ffmpeg
 	pip install "augly[video]"
 	pip install vidgear==0.1.9
 	pip install opencv-python
@@ -70,3 +71,10 @@ Este repositorio contiene el código para el proceso completo del modelo, desde 
 
 
 	conda env export --from-history | grep -v '^prefix:' > tf-gpu.yml
+
+	pytorch
+	conda create -n torch python=3.10
+	pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu126
+	conda install -c conda-forge ffmpeg -y
+	pip install opencv-python
+	pip install tqdm
