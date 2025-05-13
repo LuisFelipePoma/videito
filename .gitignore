@@ -185,6 +185,8 @@ dist
 /src/sagemaker/features
 /src/sagemaker/save_model
 /src/sagemaker/OpenFace Embeddings/X_seq.npy
+/src/sagemaker/notebooks/2_training/Pipeline/checkpoints_transformer
+
 
 # ssl
 *.pem
