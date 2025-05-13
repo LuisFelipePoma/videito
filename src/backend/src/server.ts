@@ -12,18 +12,18 @@ import { setupSocketServer } from "./services/rooms/socket";
 import morgan from "morgan";
 
 const options = {
-  key: fs.readFileSync("./src/ssl/key.pem", "utf-8"),
-  cert: fs.readFileSync("./src/ssl/cert.pem", "utf-8"),
+	key: fs.readFileSync("./src/ssl/key.pem", "utf-8"),
+	cert: fs.readFileSync("./src/ssl/cert.pem", "utf-8"),
 };
 
 dotenv.config();
 const app = express();
 const httpServer = createServer(options, app);
 const io = new SocketIOServer(httpServer, {
-  cors: {
-    origin: "*", // Ajusta para mayor seguridad
-    methods: ["GET", "POST"],
-  },
+	cors: {
+		origin: "*", // Ajusta para mayor seguridad
+		methods: ["GET", "POST"],
+	},
 });
 
 // Middlewares
@@ -43,7 +43,7 @@ app.use(errorHandler);
 setupSocketServer(io);
 
 // CREATE LISTENERS
-const PORT = process.env.PORT || 3000;
-httpServer.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+const PORT = Number(process.env.PORT) || 3000;
+httpServer.listen(PORT, "0.0.0.0", () => {
+	console.log(`Server running on port ${PORT}`);
 });

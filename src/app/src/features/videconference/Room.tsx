@@ -1,10 +1,16 @@
-// ...existing code...
 import { useParams } from "react-router";
 import { useLocalMedia } from "./hooks/useLocalMedia";
 import { useMediasoupConnection } from "./hooks/useMediasoupConnection";
 
 export const Room = () => {
   const { id } = useParams();
+  const { remoteStreams } = useRoomStore(
+    useShallow((s) => ({
+      remoteStreams: s.remoteStreams,
+    }))
+  );
+
+
   useMediasoupConnection();
   const { stream, loading, error } = useLocalMedia({
     video:{
@@ -33,6 +39,20 @@ export const Room = () => {
           />
         </>
       )}
+
     </div>
   );
 };
+
+
+// {remoteStreams.map((stream, i) => (
+//   <video
+//     key={i}
+//     autoPlay
+//     playsInline
+//     ref={(video) => {
+//       if (video) video.srcObject = stream;
+//     }}
+//     style={{ width: 320, height: 240, background: "#000", margin: 10 }}
+//   />
+// ))}

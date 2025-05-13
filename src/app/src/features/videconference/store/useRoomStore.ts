@@ -24,6 +24,9 @@ type RoomState = {
   consumers: ConsumerData[];
   addConsumer: (consumer: ConsumerData) => void;
   clearConsumers: () => void;
+
+	remoteStreams: MediaStream[];
+	addRemoteStream: (stream: MediaStream) => void;
 };
 
 export const useRoomStore = create<RoomState>((set) => ({
@@ -48,4 +51,10 @@ export const useRoomStore = create<RoomState>((set) => ({
       consumers: [...state.consumers, consumer],
     })),
   clearConsumers: () => set({ consumers: [] }),
+	remoteStreams: [],
+	addRemoteStream: (stream) => {
+		set((state) => ({
+			remoteStreams: [...state.remoteStreams, stream],
+		}));
+	},
 }));
