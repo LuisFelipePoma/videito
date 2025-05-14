@@ -8,7 +8,7 @@ import { useShallow } from "zustand/react/shallow";
 export const useMediasoupConnection = () => {
 	const { id } = useParams();
 	const socket = useSocket();
-	const { createTransport, connectTransport, consume, getProducers } = useRoomSocket(socket, id || "");
+	const { createTransport, connectTransport, consume, getProducers, getParticipants } = useRoomSocket(socket, id || "");
 	const { device, addRemoteStream } = useRoomStore(
 		useShallow((s) => ({
 			device: s.device,
@@ -99,6 +99,15 @@ export const useMediasoupConnection = () => {
 			for (const { producerId } of producers) {
 				await consumeProducer(producerId);
 			}
+			// Obtener la lista inicial de participantes
+			try {
+				const participants = await getParticipants();
+				// setParticipants(participants);
+				console.log('Initial participants:', participants);
+			} catch (error) {
+				console.error('Failed to get participants:', error);
+			}
+
 
 			// Listen for new producers
 			socket.on("newProducer", async ({ producerId }: any) => {

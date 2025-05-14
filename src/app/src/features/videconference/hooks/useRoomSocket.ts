@@ -7,6 +7,7 @@ import { useEffect, useRef } from "react";
 import { Socket } from "socket.io-client";
 import { useRoomStore } from "../store/useRoomStore";
 import { useShallow } from "zustand/react/shallow";
+import { useUserStore } from "@core/context/userStore";
 
 // Define una interfaz para el API
 interface RoomSocketApi {
@@ -14,6 +15,7 @@ interface RoomSocketApi {
 	connectTransport: (transportId: string, dtlsParameters: DtlsParameters) => Promise<void>;
 	consume: (producerId: string, transportId: string, rtpCapabilities: RtpCapabilities) => Promise<any>;
 	getProducers: () => Promise<{ producerId: string; peerId: string }[]>;
+	getParticipants: () => Promise<any[]>; // Añade esta línea
 }
 
 export function useRoomSocket(socket: Socket | null, roomId: string): RoomSocketApi {
@@ -25,11 +27,11 @@ export function useRoomSocket(socket: Socket | null, roomId: string): RoomSocket
 
 	// Inicializa con un objeto vacío y asegura el tipo
 	const apiRef = useRef<RoomSocketApi>({} as RoomSocketApi);
-
+	const user = useUserStore(s => s.user)
 	useEffect(() => {
 		if (!socket || !roomId) return;
 
-		socket.emit("joinRoom", { roomId });
+		socket.emit("joinRoom", { roomId, userInfo: user });
 
 		const onJoinedRoom = ({
 			rtpCapabilities,
@@ -43,12 +45,21 @@ export function useRoomSocket(socket: Socket | null, roomId: string): RoomSocket
 			setRtpCapabilities(rtpCapabilities);
 		};
 
-		socket.on("joinedRoom", onJoinedRoom);
+		// Añade los event listeners para los eventos de participantes
+		const onNewParticipant = (participant: any) => {
+			console.log('New participant joined:', participant);
+			// setParticipants(prev => [...prev, participant]);
+		};
+
+		const onParticipantLeft = ({ id }: { id: string }) => {
+			console.log('Participant left:', id);
+			// setParticipants(prev => prev.filter(p => p.id !== id));
+		};
 
 		// Implementación de createTransport
 		apiRef.current.createTransport = async (isConsumer) => {
 			return new Promise((resolve, reject) => {
-				socket.emit("createTransport", { isConsumer }, (params: any) => {
+				socket.emit("createTransport", { isConsumer, user }, (params: any) => {
 					if (!params || !params.id) {
 						console.warn("[frontend] createTransport error", params);
 						reject(params);
@@ -56,6 +67,14 @@ export function useRoomSocket(socket: Socket | null, roomId: string): RoomSocket
 						console.log("[frontend] createTransport", params);
 						resolve(params);
 					}
+				});
+			});
+		};
+		// Añade dentro del useEffect después de getProducers()
+		apiRef.current.getParticipants = async () => {
+			return new Promise((resolve) => {
+				socket.emit("getParticipants", (participants: any[]) => {
+					resolve(participants);
 				});
 			});
 		};
@@ -105,8 +124,17 @@ export function useRoomSocket(socket: Socket | null, roomId: string): RoomSocket
 			});
 		};
 
+
+		socket.on("joinedRoom", onJoinedRoom);
+		// Añade dentro de useEffect antes de joinRoom
+		socket.on("newParticipant", onNewParticipant);
+		socket.on("participantLeft", onParticipantLeft);
+
+
 		return () => {
 			socket.off("joinedRoom", onJoinedRoom);
+			socket.off("newParticipant", onNewParticipant);
+			socket.off("participantLeft", onParticipantLeft);
 		};
 	}, [socket, roomId, setRtpCapabilities]);
 

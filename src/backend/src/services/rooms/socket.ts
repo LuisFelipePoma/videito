@@ -15,18 +15,43 @@ export async function setupSocketServer(io: Server) {
 		console.log(`Socket connected: ${socket.id}`);
 
 		// ------------------------------------------------------------ SIGNALS
-		socket.on("joinRoom", async ({ roomId }) => {
-			console.log(`[${socket.id}] joinRoom: ${roomId}`);
+		socket.on("joinRoom", async ({ roomId, userInfo }) => {
+			console.log(`[${socket.id}] joinRoom: ${roomId}`, userInfo);
 
 			currentRoomId = roomId;
-			const room = await createRoom(roomId, socket.id);
+			const room = await createRoom(roomId, socket.id, userInfo);
 			if (!room) return;
-			socket.join(roomId); // this join makes the socket join the room
+
+			// Guardar información del usuario
+			const peer = room.peers.get(socket.id);
+			if (peer && userInfo) {
+				peer.details = {
+					...peer.details,
+					user: userInfo,
+				};
+			}
+
+			socket.join(roomId);
+
+			// Crear lista de participantes
+			const participants = Array.from(room.peers.entries()).map(([id, p]) => ({
+				id,
+				user: p.details.user
+			}));
+
+
+			// Notificar a todos los demás que un nuevo usuario ha entrado
+			socket.to(currentRoomId).emit("newParticipant", {
+				id: socket.id,
+				user: peer?.details.user
+			});
+
 			socket.emit("joinedRoom", {
 				rtpCapabilities: room.router.rtpCapabilities,
 				producerList: Array.from(room.peers.values()).flatMap((peer) =>
 					Array.from(peer.producers.keys())
 				),
+				participants // Lista de todos los participantes actuales
 			});
 		});
 
@@ -34,6 +59,10 @@ export async function setupSocketServer(io: Server) {
 			const room = getRoom(currentRoomId);
 			const peer = room?.peers.get(socket.id);
 			if (!room || !peer) return;
+
+			// Notificar a todos que un usuario ha salido
+			socket.to(currentRoomId).emit("participantLeft", { id: socket.id });
+
 			peer.transports.forEach((t) => t.close());
 			peer.producers.forEach((p) => p.close());
 			peer.consumers.forEach((c) => c.close());
@@ -42,7 +71,7 @@ export async function setupSocketServer(io: Server) {
 			socket.emit("leftRoom");
 		});
 
-		socket.on("createTransport", async ({ isConsumer }, callback) => {
+		socket.on("createTransport", async ({ isConsumer, userInfo }, callback) => {
 			const room = getRoom(currentRoomId);
 			if (!room) {
 				console.warn(`[${socket.id}] Tried to createTransport without room`);
@@ -55,7 +84,7 @@ export async function setupSocketServer(io: Server) {
 					transports: new Map(),
 					producers: new Map(),
 					consumers: new Map(),
-					details: { role: "user" },
+					details: { user: userInfo },
 				};
 				room.peers.set(socket.id, peer);
 			}
@@ -134,9 +163,24 @@ export async function setupSocketServer(io: Server) {
 				}
 			}
 
+
+
 			callback(producers);
 		});
 
+		socket.on("getParticipants", (callback) => {
+			const room = getRoom(currentRoomId);
+			if (!room) return callback([]);
+
+			const participants = Array.from(room.peers.entries()).map(([id, p]) => ({
+				id,
+				user: p.details.user,
+				// Opcional: indica si está transmitiendo
+				isStreaming: p.producers.size > 0,
+			}));
+
+			callback(participants);
+		});
 
 		socket.on(
 			"consume",
@@ -195,6 +239,10 @@ export async function setupSocketServer(io: Server) {
 			const peer = room?.peers.get(socket.id);
 			if (!room || !peer) return;
 			console.log(`[${socket.id}] disconnected, cleaning up resources`);
+
+			// Notificar a todos que un usuario se ha desconectado
+			socket.to(currentRoomId).emit("participantLeft", { id: socket.id });
+
 			// ...en socket.on("disconnect") y leaveRoom...
 			peer.producers.forEach((p, producerId) => {
 				socket.to(currentRoomId).emit("producerClosed", { producerId });
