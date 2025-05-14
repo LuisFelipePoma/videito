@@ -20,7 +20,7 @@ export const Course = () => {
   if (isLoading || !course || !user || !id) return <p>is loading ...</p>;
 
   return (
-    <div className="mx-auto max-w-7xl p-6 flex flex-col gap-5">
+    <div className="flex flex-col gap-5">
       <section className="flex flex-col gap-2.5">
         <BackButton text="Volver a mis cursos" />
         <div className="flex justify-between items-center">
@@ -32,7 +32,7 @@ export const Course = () => {
         <p className="text-secondary-foreground">{course.description}</p>
       </section>
 
-      <section className="grid gap-6 md:grid-cols-3 mb-8">
+      <section className="grid gap-6 md:grid-cols-3">
         <article className="border border-warmgray bg-warmblack rounded-lg p-4">
           <div className="pb-2">
             <h3 className="text-lg font-medium text-lighttext">Estudiantes</h3>

@@ -1,9 +1,9 @@
 import * as React from "react";
 
 interface TabToggleProps {
-  tabs: { value: string; label: string }[];
+  tabs: { value: string; label: string | React.ReactNode }[];
   value: string;
-  setValue: React.Dispatch<React.SetStateAction<string>>;
+  setValue: React.Dispatch<React.SetStateAction<string>> | ((value: string) => void);
   className?: string;
 }
 
@@ -27,11 +27,10 @@ export function TabToggle({
         <button
           key={tab.value}
           onClick={() => handleTabClick(tab.value)}
-          className={`flex-1 p-1 text-center transition-colors rounded-md ${
-            value === tab.value
-              ? "bg-primary-foreground text-gray-800 font-medium shadow-sm"
-              : " hover:bg-gray-100 text-gray-600"
-          }`}
+          className={`flex justify-center flex-1 p-1 text-center transition-colors rounded-md ${value === tab.value
+            ? "bg-primary-foreground text-gray-800 font-medium shadow-sm"
+            : " hover:bg-gray-100 text-gray-600"
+            }`}
         >
           {tab.label}
         </button>

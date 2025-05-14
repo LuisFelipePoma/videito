@@ -8,10 +8,11 @@ import { useShallow } from "zustand/react/shallow";
 export const useMediasoupConnection = () => {
 	const { id } = useParams();
 	const socket = useSocket();
-	const { createTransport, connectTransport } = useRoomSocket(socket, id || "");
-	const { device } = useRoomStore(
+	const { createTransport, connectTransport, consume, getProducers } = useRoomSocket(socket, id || "");
+	const { device, addRemoteStream } = useRoomStore(
 		useShallow((s) => ({
 			device: s.device,
+			addRemoteStream: s.addRemoteStream
 		}))
 	);
 
@@ -54,25 +55,6 @@ export const useMediasoupConnection = () => {
 				}
 			);
 
-			const stream = await navigator.mediaDevices.getUserMedia({
-				audio: true,
-				video: true,
-			});
-			const track = stream.getVideoTracks()[0];
-			await producerTransport.produce({ track });
-
-			// Consume existing producers
-			const producers = await getProducers();
-			for (const { producerId } of producers) {
-				await consumeProducer(producerId);
-			}
-
-			// Listen for new producers
-			socket.on("newProducer", async ({ producerId }: any) => {
-				console.log("🆕 New producer detected", producerId);
-				await consumeProducer(producerId);
-			});
-
 			const consumeProducer = async (producerId: string) => {
 				const consumerTransportParams = await createTransport(true);
 				const consumerTransport = device.createRecvTransport(consumerTransportParams);
@@ -104,6 +86,25 @@ export const useMediasoupConnection = () => {
 				addRemoteStream(stream);
 			};
 
+
+			// const stream = await navigator.mediaDevices.getUserMedia({
+			// 	audio: true,
+			// 	video: true,
+			// });
+			// const track = stream.getVideoTracks()[0];
+			// await producerTransport.produce({ track });
+
+			// Consume existing producers
+			const producers = await getProducers();
+			for (const { producerId } of producers) {
+				await consumeProducer(producerId);
+			}
+
+			// Listen for new producers
+			socket.on("newProducer", async ({ producerId }: any) => {
+				console.log("🆕 New producer detected", producerId);
+				await consumeProducer(producerId);
+			});
 		};
 
 		setup();

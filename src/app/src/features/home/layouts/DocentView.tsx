@@ -14,8 +14,10 @@ export const DocentView = () => {
       <section className="flex flex-col gap-5">
         <h3 className="text-xl font-medium text-lighttext">Mis cursos</h3>
         <div className="grid gap-4 md:grid-cols-3">
-          {coursesDocent.map((course) => (
-            <CardCourse course={course} />
+          {coursesDocent.map((course, i) => (
+            <CardCourse
+              key={`courses-${i}`}
+              course={course} />
           ))}
         </div>
       </section>
@@ -27,7 +29,7 @@ export const DocentView = () => {
         </h3>
         <div className="grid gap-4 md:grid-cols-3">
           {reportsDummie.map((report, i) => (
-            <article key={i} className="border-1 px-3 py-1 rounded-md">
+            <article key={`reports-${i}`} className="border-1 px-3 py-1 rounded-md">
               <header className="pb-2">
                 <h2 className="font-bold">{report.topic}</h2>
                 <p className="text-sm">{report.course}</p>
@@ -44,13 +46,12 @@ export const DocentView = () => {
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <div
-                      className={`h-full ${
-                        report.attention > 80
-                          ? "bg-success"
-                          : report.attention > 60
+                      className={`h-full ${report.attention > 80
+                        ? "bg-success"
+                        : report.attention > 60
                           ? "bg-warning"
                           : "bg-error"
-                      }`}
+                        }`}
                       style={{ width: `${report.attention}%` }}
                     ></div>
                   </div>

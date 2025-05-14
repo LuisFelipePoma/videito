@@ -25,12 +25,13 @@ export interface CourseDetailsResponse {
 // ROOMS
 
 export interface Room {
-	"id": number
-	"title": string
-	"description": string
-	"accessCode": string
-	"courseId": number
-	"isActive": boolean
-	"createdAt": Date
-	"updatedAt": Date
+	id: number
+	title: string
+	description: string
+	accessCode: string
+	courseId: number
+	isActive: boolean
+	createdAt: Date
+	updatedAt: Date
+	endedAt: Date
 }

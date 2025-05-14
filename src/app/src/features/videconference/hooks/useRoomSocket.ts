@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
 	DtlsParameters,
 	RtpCapabilities,
@@ -9,31 +8,23 @@ import { Socket } from "socket.io-client";
 import { useRoomStore } from "../store/useRoomStore";
 import { useShallow } from "zustand/react/shallow";
 
-export function useRoomSocket(socket: Socket | null, roomId: string) {
+// Define una interfaz para el API
+interface RoomSocketApi {
+	createTransport: (isConsumer: boolean) => Promise<TransportOptions>;
+	connectTransport: (transportId: string, dtlsParameters: DtlsParameters) => Promise<void>;
+	consume: (producerId: string, transportId: string, rtpCapabilities: RtpCapabilities) => Promise<any>;
+	getProducers: () => Promise<{ producerId: string; peerId: string }[]>;
+}
+
+export function useRoomSocket(socket: Socket | null, roomId: string): RoomSocketApi {
 	const { setRtpCapabilities } = useRoomStore(
 		useShallow((s) => ({
 			setRtpCapabilities: s.setRtpCapabilities,
 		}))
 	);
-	// Referencia para exponer funciones
-	const apiRef = useRef({
-		createTransport: async (
-			_isConsumer: boolean
-		): Promise<TransportOptions> => { },
-		connectTransport: async (
-			_transportId: string,
-			_dtlsParameters: DtlsParameters
-		): Promise<void> => { },
-		// ⬇️ Add this in the apiRef object:
-		consume: async (
-			producerId: string,
-			transportId: string,
-			rtpCapabilities: RtpCapabilities
-		): Promise<any> => { },
 
-		getProducers: async (): Promise<{ producerId: string; peerId: string }[]> => { },
-
-	});
+	// Inicializa con un objeto vacío y asegura el tipo
+	const apiRef = useRef<RoomSocketApi>({} as RoomSocketApi);
 
 	useEffect(() => {
 		if (!socket || !roomId) return;
@@ -114,11 +105,10 @@ export function useRoomSocket(socket: Socket | null, roomId: string) {
 			});
 		};
 
-
 		return () => {
 			socket.off("joinedRoom", onJoinedRoom);
 		};
-	}, [socket, roomId]);
+	}, [socket, roomId, setRtpCapabilities]);
 
 	// Devuelve las funciones para usarlas en el componente
 	return apiRef.current;

@@ -88,10 +88,10 @@ export const CourseLayout = () => {
                       </td>
                       <td className="px-4 py-3">
                         <Link to={`/report/${session.id}`}>
-                          <a className="inline-flex items-center justify-center border border-warmgray/70 text-secondarytext hover:bg-warmgray/80 py-1 px-3 rounded text-sm">
+                          <button className="inline-flex items-center justify-center border border-warmgray/70 text-secondarytext hover:bg-warmgray/80 py-1 px-3 rounded text-sm">
                             <BarChart className="h-3 w-3 mr-1" />
                             Reporte
-                          </a>
+                          </button>
                         </Link>
                       </td>
                     </tr>
