@@ -1,3 +1,5 @@
+import { User } from "@core/types/user"
+
 export interface CourseResponse {
 	id: number
 	name: string
@@ -14,7 +16,7 @@ export interface CourseDetailsResponse {
 	name: string
 	description: string
 	codeAccess: string
-	creatorId: number
+	creatorId: User
 	createdAt: Date
 	updatedAt: Date
 	users: number

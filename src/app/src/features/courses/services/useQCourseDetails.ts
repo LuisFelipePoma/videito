@@ -13,6 +13,6 @@ export const useQCourseDetails = (id: number) => {
 
 // CALLS
 async function getCourseDetails(id: number) {
-	const response = await ClientApi.courses.get<CourseDetailsResponse[]>(`/${id}}`);
+	const response = await ClientApi.courses.get<CourseDetailsResponse>(`/${id}}`);
 	return response.data;
 }

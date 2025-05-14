@@ -19,6 +19,7 @@ SPLITS          = ["train", "validation", "test"]
 NUM_FRAMES      = 32
 BATCH_SIZE      = 32
 DEPTH           = len(CLASSES)                  # 4
+TARGET_SIZE     = (1280,)                     # tamaño de la imagen (1280, 720) → features extraídas
 
 def make_dataset(split: str, shuffle=True) -> tf.data.Dataset:
     """

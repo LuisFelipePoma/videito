@@ -23,4 +23,14 @@ export class CourseController {
 		const courses = await CourseService.getByUser(userId, role);
 		res.json(courses);
 	}
+
+	@CatchAsync
+	static async getById(req: Request, res: Response, next: NextFunction) {
+		const courseId = parseInt(req.params.id);
+		if (isNaN(courseId)) {
+			return next(new AppError("Invalid course ID", 400));
+		}
+		const courses = await CourseService.getById(courseId);
+		res.json(courses);
+	}
 }
