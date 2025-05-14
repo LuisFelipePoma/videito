@@ -1,5 +1,5 @@
 import { useState, FormEvent } from "react";
-import { Button } from "@components/ui/Button";
+import { Button } from "@components/ui/Buttons/Button";
 import { Input } from "@components/ui/Input";
 import { Mail, LogIn, Lock } from "lucide-react";
 import { useMutLogin } from "../services/useMutLogin";

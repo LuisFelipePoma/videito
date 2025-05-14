@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Button } from "@components/ui/Button";
+import { Button } from "@components/ui/Buttons/Button";
 import { Input } from "@components/ui/Input";
 import { User, Mail, School, UserPlus, Lock } from "lucide-react";
 import { UserRegisterRequest } from "../services/types";

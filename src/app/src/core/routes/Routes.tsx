@@ -4,6 +4,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import Home from "@features/home/Home";
 import { Room } from "@features/videconference/Room";
 import { SocketProvider } from "@features/videconference/context/SocketContext";
+import { Course } from "@features/courses/Course";
 
 export const Routes = createBrowserRouter([
   {
@@ -23,6 +24,10 @@ export const Routes = createBrowserRouter([
       {
         path: "home",
         element: <Home />,
+      },
+      {
+        path: "course/:id",
+        element: <Course />,
       },
       {
         path: "room/:id",

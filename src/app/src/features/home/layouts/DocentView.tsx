@@ -1,49 +1,28 @@
-import { Button } from "@components/ui/Button";
-import { BarChart, BookOpen, Users } from "lucide-react";
+import { Button } from "@components/ui/Buttons/Button";
+import { BarChart } from "lucide-react";
 import { reportsDummie } from "../data/reports";
-import { coursesDocent } from "../data/courses";
+import { CardCourse } from "../components/CardCourse";
+import { useQCourses } from "@features/courses/services/useQCourses";
 
 export const DocentView = () => {
+  const { data: coursesDocent = [], isLoading } = useQCourses();
+
+  if (isLoading || !coursesDocent) return <p>Loading ...</p>;
   return (
     <div className="space-y-8">
-      <div>
-        <h3 className="text-xl font-medium text-lighttext mb-4">Mis cursos</h3>
-      </div>
-
       {/* Lista de cursos */}
-      <section className="grid gap-4 md:grid-cols-3">
-        {coursesDocent.map((course) => (
-          <article key={course.id}>
-            <header className="pb-2">
-              <div className="flex justify-between items-center">
-                <h2>{course.name}</h2>
-                <div className="bg-primary/10 text-primary px-2 py-1 rounded text-xs">
-                  Código: {course.code}
-                </div>
-              </div>
-              <p>{course.sessions} sesiones realizadas</p>
-            </header>
-            <div className="pb-2">
-              <div className="flex items-center space-x-2">
-                <Users className="h-4 w-4 text-lighttextsec" />
-                <span className="text-sm text-lighttextsec">
-                  {course.students} estudiantes
-                </span>
-              </div>
-            </div>
-            <footer>
-              <Button className="w-full">
-                <BookOpen className="h-4 w-4 mr-2" />
-                Ver curso
-              </Button>
-            </footer>
-          </article>
-        ))}
+      <section className="flex flex-col gap-5">
+        <h3 className="text-xl font-medium text-lighttext">Mis cursos</h3>
+        <div className="grid gap-4 md:grid-cols-3">
+          {coursesDocent.map((course) => (
+            <CardCourse course={course} />
+          ))}
+        </div>
       </section>
 
       {/* Últimos reportes generados */}
-      <section>
-        <h3 className="mb-4 text-xl font-medium text-lighttext">
+      <section className="flex flex-col gap-5">
+        <h3 className="text-xl font-medium text-lighttext">
           Últimos reportes generados
         </h3>
         <div className="grid gap-4 md:grid-cols-3">

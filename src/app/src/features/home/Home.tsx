@@ -3,15 +3,8 @@ import { DocentView } from "./layouts/DocentView";
 import { StudentView } from "./layouts/StudentView";
 
 const Home = () => {
-  // const setRoomId = useRoomStore((s) => s.setRoomId);
   const user = useUserStore((state) => state.user);
-  // const navigate = useNavigate();
 
-  // const handleJoin = () => {
-  //   if (roomId.trim()) {
-  //     navigate(`/app/room/${roomId}`);
-  //   }
-  // };
   console.log(user);
   return (
     <div className="h-full">
@@ -25,7 +18,7 @@ const Home = () => {
           </p>
         </section>
 
-        <section defaultValue="teacher" className="w-full">
+        <section className="w-full">
           {/* Vista de Profesor o estudiante*/}
           {user?.role === "docent" ? <DocentView /> : <StudentView />}
         </section>

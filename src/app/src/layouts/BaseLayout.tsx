@@ -1,10 +1,17 @@
-import { Button } from "@components/ui/Button";
+import { BadgeUser } from "@components/ui/Badge/BadgeUser";
+import { Button } from "@components/ui/Buttons/Button";
 import { useUserStore } from "@core/context/userStore";
 import { Eye, LogOut } from "lucide-react";
 import { Outlet, useNavigate } from "react-router";
+import { useShallow } from "zustand/react/shallow";
 
 function BaseLayout() {
-  const forgetUserInfo = useUserStore((s) => s.forgetUserInfo);
+  const { user, forgetUserInfo } = useUserStore(
+    useShallow((s) => ({
+      forgetUserInfo: s.forgetUserInfo,
+      user: s.user,
+    }))
+  );
   const navigate = useNavigate();
 
   function handleLogout() {
@@ -21,13 +28,10 @@ function BaseLayout() {
           </div>
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
-                <span className="text-sm font-medium text-primary-foreground">
-                  JS
-                </span>
-              </div>
-              <span className="text-sm font-medium text-lighttext">
-                Juan Sánchez
+              <BadgeUser />
+              <span className="text-sm font-medium text-lighttext capitalize">
+                {user?.firstName.split(" ")[0]} {user?.lastName.split(" ")[0]} (
+                {user?.role === "student" ? "Estudiante" : "Docente"})
               </span>
             </div>
             <Button size="sm" color="destructive" onClick={handleLogout}>
