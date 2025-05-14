@@ -3,17 +3,21 @@ import { Users, Calendar } from "lucide-react";
 import { useParams } from "react-router";
 import { useQCourseDetails } from "./services/useQCourseDetails";
 import { useUserStore } from "@core/context/userStore";
-import { Role } from "@core/types/user";
-import { CourseDocentView } from "./layouts/CourseDocentView";
-import { CourseStudentView } from "./layouts/CourseStudentView";
+import { CourseLayout } from "./layouts/CourseLayout";
+import { useEffect } from "react";
+import { useCourseStore } from "./store/useCourseStore";
 
 export const Course = () => {
   const { id } = useParams();
   const user = useUserStore((s) => s.user);
-
+  const setCourseId = useCourseStore(s => s.setCourseId)
   const { data: course, isLoading } = useQCourseDetails(Number(id));
 
-  if (isLoading || !course) return <p>is loading ...</p>;
+  useEffect(() => {
+    setCourseId(Number(id));
+  }, []);
+
+  if (isLoading || !course || !user || !id) return <p>is loading ...</p>;
 
   return (
     <div className="mx-auto max-w-7xl p-6 flex flex-col gap-5">
@@ -59,13 +63,7 @@ export const Course = () => {
           </div>
         </article>
       </section>
-      <section>
-        {user?.role === Role.DOCENT ? (
-          <CourseDocentView />
-        ) : (
-          <CourseStudentView />
-        )}
-      </section>
+      <CourseLayout />
     </div>
   );
 };

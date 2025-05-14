@@ -7,7 +7,7 @@ import { logout } from "../utils/logout";
 const baseURLAPI =
 	EnvConfig.environment === "production"
 		? EnvConfig.apiUrl
-		: "https://192.168.18.67:3000/api/v1";
+		: "https://localhost:3000/api/v1";
 
 // Abstract HTTP client class
 abstract class HttpClient {
@@ -67,6 +67,7 @@ class ApiClient extends HttpClient {
 export const ClientApi = {
 	auth: new ApiClient("/auth").getInstance(),
 	courses: new ApiClient("/courses").getInstance(),
+	rooms: new ApiClient("/rooms").getInstance(),
 };
 
 export default ClientApi;

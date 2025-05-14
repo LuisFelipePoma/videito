@@ -13,7 +13,7 @@ export const BackButton: React.FC<Props> = ({ text }) => {
   return (
     <button
       onClick={handleBack}
-      className="flex items-center gap-2 hover:text-lighttextsec"
+      className="flex items-center gap-2 text-lighttextsec hover:text-lighttext w-fit"
     >
       <ArrowLeft className="h-4 w-4" />
       {text}
